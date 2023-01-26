@@ -37,21 +37,28 @@ class _UserScreenState extends State<UserScreen> {
               itemCount: (jobs['jobs'] as List).length,
               itemBuilder: (context, index) {
                 return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton.icon(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                colorOfJob(jobs['jobs'][index]['status']))),
-                        onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => JobScreen(job: jobs['jobs'][index])));},
-                        icon: Icon(getJobIcon(jobs['jobs'][index]['type']['code'])),
-                        label: Column(
-                          children: [
-                            Text(jobs['jobs'][index]['type']['code'].toString()),
-                            Text('${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
-                            //Text(jobs['jobs'][index]['address'].toString())
-                          ],
-                        )),
-                );})
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    tileColor: colorOfJob(
+                        jobs['jobs'][index]['status'],
+                        jobs['jobs'][index]['resolution']?['successful'] ??
+                            false),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              JobScreen(job: jobs['jobs'][index])));
+                    },
+                    leading:
+                        Icon(getJobIcon(jobs['jobs'][index]['type']['code'])),
+                    title: Text(jobs['jobs'][index]['type']['code'].toString()),
+                    subtitle: Text(
+                        '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                  ),
+                );
+              })
           : const Center(child: CircularProgressIndicator()),
     );
   }
@@ -70,18 +77,18 @@ class _UserScreenState extends State<UserScreen> {
     });
   }
 
-  Color colorOfJob(String status) {
+  Color colorOfJob(String status, bool? isSuccessful) {
     switch (status) {
       case 'published':
         return Colors.blue;
-      case 'paused':
+      case 'suspended':
         return Colors.grey;
       case 'en_route':
         return Colors.lightBlueAccent;
       case 'started':
         return Colors.green[200]!;
       case 'finished':
-        return Colors.green;
+        return isSuccessful != null && isSuccessful ? Colors.green : Colors.red;
       default:
         return Colors.blue;
     }
@@ -91,7 +98,8 @@ class _UserScreenState extends State<UserScreen> {
     switch (type) {
       case 'Подключение в многоэтажке':
         return Icons.plus_one;
-      default: return Icons.construction;
+      default:
+        return Icons.construction;
     }
   }
 }

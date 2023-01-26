@@ -27,28 +27,31 @@ class _UsersWidgetState extends State<UsersWidget> {
   @override
   Widget build(BuildContext context) {
     if (users.containsKey('users')) {
-      return ListView.builder(
-          itemCount: (users['users'] as List).length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) => Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 30),
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.blue)),
-                  child: Text(users['users'][index]['first_name'] +
-                      ' ' +
-                      users['users'][index]['last_name']),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => UserScreen(
-                            user: users['users'][index], api: api)));
-                  },
-                ),
-              ));
+      return Expanded(
+        child: ListView.builder(
+            itemCount: (users['users'] as List).length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) => Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 30),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.blue)),
+                    child: Text(users['users'][index]['first_name'] +
+                        ' ' +
+                        users['users'][index]['last_name']),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => UserScreen(
+                              user: users['users'][index], api: api)));
+                    },
+                  ),
+                )),
+      );
     }
-    return Text(users.toString(),
+    return Text(
+      users.toString(),
     );
   }
 

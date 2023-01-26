@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Planado MDS',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           primarySwatch: Colors.blue,
           appBarTheme: const AppBarTheme(
@@ -110,12 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             if (tab == 'users') ...[UsersWidget(authKey: authKey)],
             if (tab == 'teams') ...[const TeamsWidget()],
             if (tab == 'map') ...[const MapWidget()],
-            if (tab == 'jobs') ...[const JobsWidget()],
+            if (tab == 'jobs') ...[JobsWidget(authKey: authKey)],
             if (tab == '') ...[
               RefreshIndicator(
                   onRefresh: () {

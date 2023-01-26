@@ -54,13 +54,49 @@ class PlanadoAPI {
     return '';
   }
 
+  Future<String> getFreeJobs(String authKey) async {
+    key = authKey;
+    print('getting free jobs; key=$authKey');
+    Map<String, dynamic> jobs = {'jobs': []};
+    try {
+      String month = (DateTime.now().month < 10)
+          ? '0${DateTime.now().month}'
+          : DateTime.now().month.toString();
+      String day = (DateTime.now().day < 10)
+          ? '0${DateTime.now().day}'
+          : DateTime.now().day.toString();
+      String url = 'https://api.planadoapp.com/v2/jobs?status[]=posted';
+      var resp = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $authKey'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //return resp.body;
+        Map<String, dynamic> decoded = jsonDecode(resp.body);
+        for (var job in decoded['jobs']) {
+          var respJob = await getJob(job['uuid']);
+          if (respJob != '') {
+            (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
+          }
+        }
+        return jsonEncode(jobs);
+      }
+    } catch (e) {
+      print(e);
+      return '';
+    }
+    return '';
+  }
+
   Future<String> getJob(String id) async {
     print('getting job; id = $id');
     try {
       String url = 'https://api.planadoapp.com/v2/jobs/$id';
-      var resp = await http.get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
+      var resp = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //print(resp.body);
         return resp.body;
+      } else {
+        print(resp.body);
       }
     } catch (e) {
       print(e);
@@ -78,7 +114,8 @@ class PlanadoAPI {
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         Map<String, dynamic> decoded = jsonDecode(resp.body);
         //print(decoded['job_types']);
-        return (decoded['job_types'] as List).firstWhere((element) => element['uuid'] == typeId)['code'];
+        return (decoded['job_types'] as List)
+            .firstWhere((element) => element['uuid'] == typeId)['code'];
       }
     } catch (e) {
       print(e);
