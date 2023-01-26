@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 class PlanadoAPI {
@@ -21,7 +23,8 @@ class PlanadoAPI {
   }
 
   Future<String> getUserJobs(String userId) async {
-    print('getting users; key = $key');
+    print('getting users jobs; key = $userId');
+    Map<String, dynamic> jobs = {'jobs': []};
     try {
       String month = (DateTime.now().month < 10)
           ? '0${DateTime.now().month}'
@@ -35,7 +38,48 @@ class PlanadoAPI {
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //return resp.body;
+        Map<String, dynamic> decoded = jsonDecode(resp.body);
+        for (var job in decoded['jobs']) {
+          var respJob = await getJob(job['uuid']);
+          if (respJob != '') {
+            (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
+          }
+        }
+        return jsonEncode(jobs);
+      }
+    } catch (e) {
+      print(e);
+      return '';
+    }
+    return '';
+  }
+
+  Future<String> getJob(String id) async {
+    print('getting job; id = $id');
+    try {
+      String url = 'https://api.planadoapp.com/v2/jobs/$id';
+      var resp = await http.get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         return resp.body;
+      }
+    } catch (e) {
+      print(e);
+      return '';
+    }
+    return '';
+  }
+
+  Future<String> getJobType(String typeId) async {
+    print('getting job type; typeId = $typeId');
+    try {
+      var resp = await http.get(
+          Uri.parse('https://api.planadoapp.com/v2/job_types'),
+          headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        Map<String, dynamic> decoded = jsonDecode(resp.body);
+        //print(decoded['job_types']);
+        return (decoded['job_types'] as List).firstWhere((element) => element['uuid'] == typeId)['code'];
       }
     } catch (e) {
       print(e);

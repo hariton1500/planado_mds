@@ -25,7 +25,7 @@ class _UserScreenState extends State<UserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(jobs);
+    //print(jobs);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.user['first_name']),
@@ -34,25 +34,40 @@ class _UserScreenState extends State<UserScreen> {
           ? ListView.builder(
               shrinkWrap: true,
               itemCount: (jobs['jobs'] as List).length,
-              itemBuilder: (context, index) => Padding(
+              itemBuilder: (context, index) {
+                String type = '';
+                //widget.api.getJobType(jobs['jobs'][index]['type_uuid']).then((value) => type = value);
+                return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 colorOfJob(jobs['jobs'][index]['status']))),
                         onPressed: () {},
-                        child: Text(jobs['jobs'][index].toString())),
-                  ))
-          : Container(),
+                        icon: Icon(getJobIcon(jobs['jobs'][index]['type']['code'])),
+                        label: Column(
+                          children: [
+                            Text(jobs['jobs'][index]['type']['code'].toString()),
+                            Text('${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                            //Text(jobs['jobs'][index]['address'].toString())
+                          ],
+                        )),
+                );})
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 
   void loadJobs() {
-    widget.api.getUserJobs(widget.user['uuid']).then((value) {
+    widget.api.getUserJobs(widget.user['uuid']).then((value) async {
       if (value != '') {
         print(value);
         Map<String, dynamic> decoded = {};
         decoded = jsonDecode(value);
+        /*
+        for (Map<String, dynamic> job in decoded['jobs']) {
+          var answer = await widget.api.getJobType(job['type_uuid']);
+          job['type'] = answer.toString();
+        }*/
         setState(() {
           jobs = decoded;
         });
@@ -71,9 +86,19 @@ class _UserScreenState extends State<UserScreen> {
       case 'en_route':
         return Colors.lightBlueAccent;
       case 'started':
+        return Colors.green[200]!;
+      case 'finished':
         return Colors.green;
       default:
         return Colors.blue;
+    }
+  }
+
+  IconData getJobIcon(String type) {
+    switch (type) {
+      case 'Подключение в многоэтажке':
+        return Icons.plus_one;
+      default: return Icons.construction;
     }
   }
 }
