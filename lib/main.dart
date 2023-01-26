@@ -6,7 +6,7 @@ import 'package:planado_mds/Widgets/jobs.dart';
 import 'package:planado_mds/Widgets/map.dart';
 import 'package:planado_mds/Widgets/teams.dart';
 import 'package:planado_mds/Widgets/users.dart';
-import 'package:planado_mds/screens/setup/setup.dart';
+import 'package:planado_mds/Screens/setup/setup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -113,9 +113,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             if (tab == 'users') ...[UsersWidget(authKey: authKey)],
-            if (tab == 'teams') ...[TeamsWidget()],
-            if (tab == 'map') ...[MapWidget()],
-            if (tab == 'jobs') ...[JobsWidget()],
+            if (tab == 'teams') ...[const TeamsWidget()],
+            if (tab == 'map') ...[const MapWidget()],
+            if (tab == 'jobs') ...[const JobsWidget()],
             if (tab == '') ...[
               RefreshIndicator(
                   onRefresh: () {
@@ -135,13 +135,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('authKey')) {
+      // ignore: use_build_context_synchronously
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => Setup(
                 settings: Settings(),
               )));
     } else {
       authKey = prefs.getString('authKey') ?? '';
-      print(authKey);
+      //print(authKey);
       Timer(const Duration(milliseconds: 500), () {
         setState(() {
           tab = 'users';

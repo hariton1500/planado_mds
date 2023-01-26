@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:planado_mds/Screens/job.dart';
 import 'package:planado_mds/Services/api.dart';
 
 class UserScreen extends StatefulWidget {
@@ -35,15 +36,13 @@ class _UserScreenState extends State<UserScreen> {
               shrinkWrap: true,
               itemCount: (jobs['jobs'] as List).length,
               itemBuilder: (context, index) {
-                String type = '';
-                //widget.api.getJobType(jobs['jobs'][index]['type_uuid']).then((value) => type = value);
                 return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton.icon(
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 colorOfJob(jobs['jobs'][index]['status']))),
-                        onPressed: () {},
+                        onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => JobScreen(job: jobs['jobs'][index])));},
                         icon: Icon(getJobIcon(jobs['jobs'][index]['type']['code'])),
                         label: Column(
                           children: [
@@ -60,14 +59,8 @@ class _UserScreenState extends State<UserScreen> {
   void loadJobs() {
     widget.api.getUserJobs(widget.user['uuid']).then((value) async {
       if (value != '') {
-        print(value);
         Map<String, dynamic> decoded = {};
         decoded = jsonDecode(value);
-        /*
-        for (Map<String, dynamic> job in decoded['jobs']) {
-          var answer = await widget.api.getJobType(job['type_uuid']);
-          job['type'] = answer.toString();
-        }*/
         setState(() {
           jobs = decoded;
         });

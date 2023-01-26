@@ -34,7 +34,6 @@ class PlanadoAPI {
           : DateTime.now().day.toString();
       String url =
           'https://api.planadoapp.com/v2/jobs?assignee[worker_uuid]=$userId&scheduled_at[after]=${DateTime.now().year}-$month-${day}T00:00:00Z&scheduled_at[before]=${DateTime.now().year}-$month-${day}T23:59:59Z';
-      print(url);
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
