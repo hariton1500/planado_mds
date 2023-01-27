@@ -64,7 +64,10 @@ class _UsersWidgetState extends State<UsersWidget> {
                 )),
       );
     } else {
-      return const Expanded(child: Center(child: CircularProgressIndicator(),));
+      return const Expanded(
+          child: Center(
+        child: CircularProgressIndicator(),
+      ));
     }
   }
 
@@ -74,6 +77,10 @@ class _UsersWidgetState extends State<UsersWidget> {
       //print(value);
       Map<String, dynamic> decoded = {};
       if (value != '') decoded = jsonDecode(value);
+      //filter users can do jobs------------------
+      (decoded['users'] as List).removeWhere(
+          (element) => !element['permissions']['mobile']['jobs']['complete']);
+      //==========================================
       setState(() {
         users = decoded;
       });

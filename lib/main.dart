@@ -56,42 +56,43 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-        ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                tab = 'users';
-              });
-            },
-            icon: const Icon(Icons.person),
-            label: const Text('users')),
-        ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                tab = 'teams';
-              });
-            },
-            icon: const Icon(Icons.people),
-            label: const Text('teams')),
-        ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                tab = 'jobs';
-              });
-            },
-            icon: const Icon(Icons.work),
-            label: const Text('jobs')),
-        ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                tab = 'map';
-              });
-            },
-            icon: const Icon(Icons.map),
-            label: const Text('map')),
-      ]),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  tab = 'users';
+                });
+              },
+              icon: const Icon(Icons.person),
+              label: const Text('users')),
+          ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  tab = 'teams';
+                });
+              },
+              icon: const Icon(Icons.people),
+              label: const Text('teams')),
+          ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  tab = 'jobs';
+                });
+              },
+              icon: const Icon(Icons.work),
+              label: const Text('jobs')),
+          ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  tab = 'map';
+                });
+              },
+              icon: const Icon(Icons.map),
+              label: const Text('map')),
+        ]),
+      ),
       appBar: AppBar(
         title: Wrap(
           crossAxisAlignment: WrapCrossAlignment.start,

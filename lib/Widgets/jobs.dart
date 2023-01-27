@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Services/api.dart';
 import 'package:planado_mds/Widgets/users.dart';
+import 'package:planado_mds/screens/job.dart';
+import 'package:planado_mds/screens/target.dart';
 
 class JobsWidget extends StatefulWidget {
   const JobsWidget({Key? key, required this.authKey}) : super(key: key);
@@ -16,6 +18,7 @@ class _JobsWidgetState extends State<JobsWidget> {
   PlanadoAPI api = PlanadoAPI();
 
   Map<String, dynamic> jobs = {};
+  bool showComments = true;
 
   @override
   void initState() {
@@ -25,18 +28,6 @@ class _JobsWidgetState extends State<JobsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    //return Center(child: Text(jobs.toString()),);
-    /*
-    return ListBody(
-      children: (jobs['jobs'] as List)
-          .map((job) => ListTile(
-                title: Text(job['template']['name']),
-                subtitle: Text(
-                    job['address']['formatted'] + job['address']['apartment']),
-              ))
-          .toList(),
-    );*/
-
     if (jobs.isNotEmpty) {
       return Expanded(
         child: ListView.builder(
@@ -48,15 +39,30 @@ class _JobsWidgetState extends State<JobsWidget> {
                     shape: const RoundedRectangleBorder(
                         side: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.all(Radius.circular(5))),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              JobScreen(job: jobs['jobs'][index])));
+                    },
                     trailing: PopupMenuButton<int>(
                       onSelected: (value) {
                         switch (value) {
                           case 0:
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => Material(
-                                    child:
-                                        UsersWidget(authKey: widget.authKey))));
+                                    child: TargetScreen(
+                                        authKey: widget.authKey))));
+                            break;
+                          case 1:
+                            api
+                                .deleteJob(jobs['jobs'][index]['uuid'])
+                                .then((value) {
+                              if (value == '{"message":"Performed"}') {
+                                setState(() {
+                                  (jobs['jobs'] as List).removeAt(index);
+                                });
+                              }
+                            });
                             break;
                           default:
                         }
@@ -73,8 +79,16 @@ class _JobsWidgetState extends State<JobsWidget> {
                       ],
                     ),
                     title: Text(jobs['jobs'][index]['template']['name']),
-                    subtitle: Text(jobs['jobs'][index]['address']['formatted'] +
-                        ', k. ' + jobs['jobs'][index]['address']?['apartment'].toString()),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                        showComments
+                            ? Text(jobs['jobs'][index]['description'])
+                            : Container()
+                      ],
+                    ),
                   ),
                 )),
       );

@@ -13,6 +13,7 @@ class PlanadoAPI {
           Uri.parse('https://api.planadoapp.com/v2/users'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //print(resp.body);
         return resp.body;
       }
     } catch (e) {
@@ -65,7 +66,8 @@ class PlanadoAPI {
       String day = (DateTime.now().day < 10)
           ? '0${DateTime.now().day}'
           : DateTime.now().day.toString();
-      String url = 'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
+      String url =
+          'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
       //url = 'https://api.planadoapp.com/v2/jobs?external_order_id=R-00362473';
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $authKey'});
@@ -117,6 +119,49 @@ class PlanadoAPI {
         //print(decoded['job_types']);
         return (decoded['job_types'] as List)
             .firstWhere((element) => element['uuid'] == typeId)['code'];
+      }
+    } catch (e) {
+      print(e);
+      return '';
+    }
+    return '';
+  }
+
+  Future<String> deleteJob(String jobId) async {
+    print('delete job ID = $jobId');
+    try {
+      var resp = await http.delete(
+          Uri.parse('https://api.planadoapp.com/v2/jobs/$jobId'),
+          headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //Map<String, dynamic> decoded = jsonDecode(resp.body);
+        return resp.body;
+      }
+    } catch (e) {
+      print(e);
+      return '';
+    }
+    return '';
+  }
+
+  Future<String> assigneeJob(
+      {required String jobId,
+      required String targetId,
+      required String targetType}) async {
+    print('assignee job ID = $jobId to tartget $targetType.$targetId');
+    try {
+      var resp = await http.patch(
+          Uri.parse('https://api.planadoapp.com/v2/jobs/$jobId'),
+          headers: {
+            'Authorization': 'Bearer $key'
+          },
+          body: {
+            'assignee': jsonEncode({targetType: targetId})
+          });
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //Map<String, dynamic> decoded = jsonDecode(resp.body);
+        print(resp.body);
+        return resp.body;
       }
     } catch (e) {
       print(e);

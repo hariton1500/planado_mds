@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:planado_mds/Helpers/color.dart';
 import 'package:planado_mds/Screens/job.dart';
 import 'package:planado_mds/Services/api.dart';
 
@@ -24,6 +25,7 @@ class _UserScreenState extends State<UserScreen> {
 
   Map<String, dynamic> jobs = {};
   Map<String, int> jobsCounter = {};
+  bool showComments = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,16 @@ class _UserScreenState extends State<UserScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.user['first_name'] + ' ' + widget.user['last_name']),
+        actions: [
+          TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  showComments = !showComments;
+                });
+              },
+              icon: const Icon(Icons.fact_check),
+              label: const Text('Comments'))
+        ],
       ),
       body: jobs.isNotEmpty
           ? ListView.builder(
@@ -55,8 +67,16 @@ class _UserScreenState extends State<UserScreen> {
                     leading:
                         Icon(getJobIcon(jobs['jobs'][index]['type']['code'])),
                     title: Text(jobs['jobs'][index]['type']['code'].toString()),
-                    subtitle: Text(
-                        '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                        showComments
+                            ? Text(jobs['jobs'][index]['description'])
+                            : Container()
+                      ],
+                    ),
                   ),
                 );
               })
@@ -76,31 +96,5 @@ class _UserScreenState extends State<UserScreen> {
         print('nothig');
       }
     });
-  }
-
-  Color colorOfJob(String status, bool? isSuccessful) {
-    switch (status) {
-      case 'published':
-        return Colors.blue;
-      case 'suspended':
-        return Colors.grey;
-      case 'en_route':
-        return Colors.indigo;
-      case 'started':
-        return Colors.green[200]!;
-      case 'finished':
-        return isSuccessful != null && isSuccessful ? Colors.green : Colors.red;
-      default:
-        return Colors.blue;
-    }
-  }
-
-  IconData getJobIcon(String type) {
-    switch (type) {
-      case 'Подключение в многоэтажке':
-        return Icons.plus_one;
-      default:
-        return Icons.construction;
-    }
   }
 }
