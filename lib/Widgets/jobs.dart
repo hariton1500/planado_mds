@@ -74,8 +74,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                     ),
                     title: Text(jobs['jobs'][index]['template']['name']),
                     subtitle: Text(jobs['jobs'][index]['address']['formatted'] +
-                        ', k. ' +
-                        jobs['jobs'][index]['address']['apartment']),
+                        ', k. ' + jobs['jobs'][index]['address']?['apartment'].toString()),
                   ),
                 )),
       );

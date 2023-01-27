@@ -23,13 +23,14 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   Map<String, dynamic> jobs = {};
+  Map<String, int> jobsCounter = {};
 
   @override
   Widget build(BuildContext context) {
     //print(jobs);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user['first_name']),
+        title: Text(widget.user['first_name'] + ' ' + widget.user['last_name']),
       ),
       body: jobs.isNotEmpty
           ? ListView.builder(
@@ -84,7 +85,7 @@ class _UserScreenState extends State<UserScreen> {
       case 'suspended':
         return Colors.grey;
       case 'en_route':
-        return Colors.lightBlueAccent;
+        return Colors.indigo;
       case 'started':
         return Colors.green[200]!;
       case 'finished':

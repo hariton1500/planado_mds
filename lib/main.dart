@@ -56,7 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      persistentFooterButtons: [
+      bottomNavigationBar: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
         ElevatedButton.icon(
             onPressed: () {
               setState(() {
@@ -89,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             icon: const Icon(Icons.map),
             label: const Text('map')),
-      ],
+      ]),
       appBar: AppBar(
         title: Wrap(
           crossAxisAlignment: WrapCrossAlignment.start,

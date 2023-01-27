@@ -65,7 +65,8 @@ class PlanadoAPI {
       String day = (DateTime.now().day < 10)
           ? '0${DateTime.now().day}'
           : DateTime.now().day.toString();
-      String url = 'https://api.planadoapp.com/v2/jobs?status[]=posted';
+      String url = 'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
+      //url = 'https://api.planadoapp.com/v2/jobs?external_order_id=R-00362473';
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $authKey'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {

@@ -34,6 +34,7 @@ class _UsersWidgetState extends State<UsersWidget> {
             itemBuilder: (context, index) => Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 30),
+                  /*
                   child: ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
@@ -46,13 +47,25 @@ class _UsersWidgetState extends State<UsersWidget> {
                           builder: (context) => UserScreen(
                               user: users['users'][index], api: api)));
                     },
+                  ),*/
+                  child: ListTile(
+                    shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => UserScreen(
+                              user: users['users'][index], api: api)));
+                    },
+                    title: Text(users['users'][index]['first_name'] +
+                        ' ' +
+                        users['users'][index]['last_name']),
                   ),
                 )),
       );
+    } else {
+      return const Expanded(child: Center(child: CircularProgressIndicator(),));
     }
-    return Text(
-      users.toString(),
-    );
   }
 
   void loadUsers() {
