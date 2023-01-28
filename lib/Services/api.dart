@@ -34,7 +34,10 @@ class PlanadoAPI {
         //print(resp.body);
         var decoded = jsonDecode(resp.body);
         for (var element in decoded['users']) {
-          (answer['users'] as List).add({'uuid': element['uuid'], 'name': '${element['first_name']} ${element['last_name']}'});
+          (answer['users'] as List).add({
+            'uuid': element['uuid'],
+            'name': '${element['first_name']} ${element['last_name']}'
+          });
         }
       }
       resp = await http.get(Uri.parse('https://api.planadoapp.com/v2/teams'),
@@ -43,7 +46,8 @@ class PlanadoAPI {
         //print(resp.body);
         var decoded = jsonDecode(resp.body);
         for (var element in decoded['teams']) {
-          (answer['teams'] as List).add({'uuid': element['uuid'], 'name': element['name']});
+          (answer['teams'] as List)
+              .add({'uuid': element['uuid'], 'name': element['name']});
         }
       }
       return jsonEncode(answer);
@@ -52,7 +56,6 @@ class PlanadoAPI {
       return '';
     }
   }
-
 
   Future<String> getUserJobs(String userId) async {
     print('getting users jobs; key = $userId');
@@ -127,7 +130,7 @@ class PlanadoAPI {
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //print(resp.body);
+        print(resp.body);
         return resp.body;
       } else {
         print(resp.body);
@@ -177,22 +180,27 @@ class PlanadoAPI {
 
   Future<String> assigneeJob(
       {required String jobId,
-      required String targetId,
+      required List<String> targetIds,
       required String targetType}) async {
-    print('assignee job ID = $jobId to tartget $targetType.$targetId');
+    print('assignee job ID = $jobId to tartget $targetType.$targetIds');
     try {
+      var list = targetIds.map((e) => {'uuid': e}).toList();
+      print(list);
       var resp = await http.patch(
           Uri.parse('https://api.planadoapp.com/v2/jobs/$jobId'),
-          headers: {
-            'Authorization': 'Bearer $key'
-          },
-          body: {
-            'assignee': jsonEncode({targetType: targetId})
-          });
+          headers: {'Authorization': 'Bearer $key'},
+          body: jsonEncode({
+            'assigne': {
+              targetType: {'uuid': targetIds.first}
+            },
+            //'assignees[]': list
+          }));
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //Map<String, dynamic> decoded = jsonDecode(resp.body);
         print(resp.body);
         return resp.body;
+      } else {
+        print(resp.body);
       }
     } catch (e) {
       print(e);

@@ -73,7 +73,8 @@ class _UserScreenState extends State<UserScreen> {
                         Text(
                             '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
                         showComments
-                            ? Text(jobs['jobs'][index]['description'])
+                            ? Text(
+                                jobs['jobs'][index]['description'].toString())
                             : Container()
                       ],
                     ),

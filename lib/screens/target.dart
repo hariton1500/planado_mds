@@ -12,52 +12,78 @@ class TargetScreen extends StatefulWidget {
 }
 
 class _TargetScreenState extends State<TargetScreen> {
-  Map<String, dynamic> targets = {};
   @override
   void initState() {
     loadTargets();
     super.initState();
   }
 
-  String targetType = 'users';
-  Map<String, bool> checks = {};
-  
+  Map<String, dynamic> targets = {'worker': [], 'team': []};
+  String targetType = 'worker';
+  List<String> selectedUuids = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        child: ListView(
-          children: targets.keys.map((usersOrTeams) => RadioListTile<String>(
-            title: Column(children: (targets[usersOrTeams] as List).map((e) {
-              return CheckboxListTile(tristate: true, title: Text(e['name'].toString()), value: checks[e['uuid'] ?? false], onChanged: (isChecked){
-                print(isChecked);
-                setState(() {
-                  checks[e['uuid']] = true;
-                });
-              });
-            }).toList(),
-            ),
-            value: usersOrTeams,
-            groupValue: targetType,
-            onChanged: (value){
-              print(value);
-              setState(() {
-                targetType = value!;
-              });
-            }
-          )).toList(),
-        )
-      ),
-    );    
+        appBar: AppBar(actions: [
+          TextButton.icon(
+              onPressed: () {
+                //print(selectedUuids);
+                Navigator.of(context).pop({targetType: selectedUuids});
+              },
+              icon: const Icon(Icons.select_all),
+              label: const Text('Assignee'))
+        ]),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Form(
+                  child: Column(
+                children: targets.keys
+                    .map((workerOrteam) => RadioListTile<String>(
+                        title: Text(workerOrteam),
+                        value: workerOrteam,
+                        groupValue: targetType,
+                        onChanged: (value) {
+                          print(value);
+                          setState(() {
+                            targetType = value!;
+                            selectedUuids.clear();
+                          });
+                        }))
+                    .toList(),
+              )),
+              Column(
+                children: (targets[targetType] as List).map((e) {
+                  return CheckboxListTile(
+                      //tristate: true,
+                      title: Text(e['name'].toString()),
+                      value: selectedUuids.contains(e['uuid']),
+                      onChanged: (isChecked) {
+                        print(isChecked);
+                        setState(() {
+                          if (isChecked ?? false) {
+                            selectedUuids.add(e['uuid']);
+                          } else {
+                            selectedUuids.remove(e['uuid']);
+                          }
+                        });
+                      });
+                }).toList(),
+              )
+            ],
+          ),
+        ));
   }
 
-  void loadTargets() async{
+  void loadTargets() async {
     widget.api.getUsersAndTeamsForChoose().then((value) {
+      var decoded = jsonDecode(value);
       setState(() {
-        targets = jsonDecode(value);
+        print(value);
+        targets['worker'] = decoded['users'];
+        targets['team'] = decoded['teams'];
       });
     });
   }
-
 }
-
