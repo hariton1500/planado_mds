@@ -23,6 +23,37 @@ class PlanadoAPI {
     return '';
   }
 
+  Future<String> getUsersAndTeamsForChoose() async {
+    print('getting users and teams for choose; key = $key');
+    Map<String, dynamic> answer = {'users': [], 'teams': []};
+    try {
+      var resp = await http.get(
+          Uri.parse('https://api.planadoapp.com/v2/users'),
+          headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //print(resp.body);
+        var decoded = jsonDecode(resp.body);
+        for (var element in decoded['users']) {
+          (answer['users'] as List).add({'uuid': element['uuid'], 'name': '${element['first_name']} ${element['last_name']}'});
+        }
+      }
+      resp = await http.get(Uri.parse('https://api.planadoapp.com/v2/teams'),
+          headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //print(resp.body);
+        var decoded = jsonDecode(resp.body);
+        for (var element in decoded['teams']) {
+          (answer['teams'] as List).add({'uuid': element['uuid'], 'name': element['name']});
+        }
+      }
+      return jsonEncode(answer);
+    } catch (e) {
+      print(e);
+      return '';
+    }
+  }
+
+
   Future<String> getUserJobs(String userId) async {
     print('getting users jobs; key = $userId');
     Map<String, dynamic> jobs = {'jobs': []};

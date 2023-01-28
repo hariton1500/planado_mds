@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:planado_mds/Screens/target.dart';
 import 'package:planado_mds/Services/api.dart';
-import 'package:planado_mds/Widgets/users.dart';
-import 'package:planado_mds/screens/job.dart';
-import 'package:planado_mds/screens/target.dart';
+import 'package:planado_mds/Screens/job.dart';
 
 class JobsWidget extends StatefulWidget {
   const JobsWidget({Key? key, required this.authKey}) : super(key: key);
@@ -49,9 +48,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                         switch (value) {
                           case 0:
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => Material(
-                                    child: TargetScreen(
-                                        authKey: widget.authKey))));
+                                builder: (context) => TargetScreen(api: api)));
                             break;
                           case 1:
                             api
