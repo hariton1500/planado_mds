@@ -48,16 +48,16 @@ class _JobsWidgetState extends State<JobsWidget> {
                         switch (value) {
                           case 0:
                             Navigator.of(context)
-                                .push<Map<String, dynamic>>(MaterialPageRoute(
+                                .push<List<Map<String, dynamic>>>(MaterialPageRoute(
                                     builder: (context) =>
                                         TargetScreen(api: api)))
                                 .then((value) {
                               if (value != null) {
                                 print(value);
                                 api.assigneeJob(
-                                    jobId: jobs['jobs'][index]['uuid'],
-                                    targetIds: value[value.keys.first],
-                                    targetType: value.keys.first);
+                                    job: jobs['jobs'][index],
+                                    assignees: value
+                                );
                               }
                             });
                             break;

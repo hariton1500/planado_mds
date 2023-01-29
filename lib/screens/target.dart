@@ -20,7 +20,7 @@ class _TargetScreenState extends State<TargetScreen> {
 
   Map<String, dynamic> targets = {'worker': [], 'team': []};
   String targetType = 'worker';
-  List<String> selectedUuids = [];
+  List<Map<String, dynamic>> selected = [];
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +29,10 @@ class _TargetScreenState extends State<TargetScreen> {
           TextButton.icon(
               onPressed: () {
                 //print(selectedUuids);
-                Navigator.of(context).pop({targetType: selectedUuids});
+                Navigator.of(context).pop(selected);
               },
               icon: const Icon(Icons.select_all),
-              label: const Text('Assignee'))
+              label: const Text('Assign to'))
         ]),
         body: SingleChildScrollView(
           child: Column(
@@ -48,7 +48,7 @@ class _TargetScreenState extends State<TargetScreen> {
                           print(value);
                           setState(() {
                             targetType = value!;
-                            selectedUuids.clear();
+                            selected.clear();
                           });
                         }))
                     .toList(),
@@ -57,15 +57,15 @@ class _TargetScreenState extends State<TargetScreen> {
                 children: (targets[targetType] as List).map((e) {
                   return CheckboxListTile(
                       //tristate: true,
-                      title: Text(e['name'].toString()),
-                      value: selectedUuids.contains(e['uuid']),
+                      title: Text((e['name'] ?? '${e['first_name']} ${e['last_name']}').toString()),
+                      value: selected.contains(e),
                       onChanged: (isChecked) {
                         print(isChecked);
                         setState(() {
                           if (isChecked ?? false) {
-                            selectedUuids.add(e['uuid']);
+                            selected.add(e);
                           } else {
-                            selectedUuids.remove(e['uuid']);
+                            selected.remove(e);
                           }
                         });
                       });

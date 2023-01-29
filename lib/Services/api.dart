@@ -33,22 +33,26 @@ class PlanadoAPI {
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //print(resp.body);
         var decoded = jsonDecode(resp.body);
+        /*
         for (var element in decoded['users']) {
           (answer['users'] as List).add({
             'uuid': element['uuid'],
             'name': '${element['first_name']} ${element['last_name']}'
           });
-        }
+        }*/
+        answer['users'] = decoded['users'];
       }
       resp = await http.get(Uri.parse('https://api.planadoapp.com/v2/teams'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //print(resp.body);
         var decoded = jsonDecode(resp.body);
+        answer['teams'] = decoded['teams'];
+        /*
         for (var element in decoded['teams']) {
           (answer['teams'] as List)
               .add({'uuid': element['uuid'], 'name': element['name']});
-        }
+        }*/
       }
       return jsonEncode(answer);
     } catch (e) {
@@ -179,22 +183,22 @@ class PlanadoAPI {
   }
 
   Future<String> assigneeJob(
-      {required String jobId,
-      required List<String> targetIds,
-      required String targetType}) async {
-    print('assignee job ID = $jobId to tartget $targetType.$targetIds');
+      {required Map<String, dynamic> job,
+      required List<Map<String, dynamic>> assignees}) async {
+    print('assignee job = $job to assignees $assignees');
     try {
-      var list = targetIds.map((e) => {'uuid': e}).toList();
-      print(list);
+      //var list = targetIds.map((e) => {'uuid': e}).toList();
+      job['assignee'] = assignees.first;
+      job['assignees'] = assignees;
+      String data = jsonEncode({'assignee': {'worker': assignees.first}, 'assignees': assignees});
+      //{'assignee': {'worker': {'uuid':targetIds.first}}, 
+      //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]
+      print(data);
       var resp = await http.patch(
-          Uri.parse('https://api.planadoapp.com/v2/jobs/$jobId'),
+          Uri.parse('https://api.planadoapp.com/v2/jobs/${job['uuid']}'),
           headers: {'Authorization': 'Bearer $key'},
-          body: jsonEncode({
-            'assigne': {
-              targetType: {'uuid': targetIds.first}
-            },
-            //'assignees[]': list
-          }));
+          body: data,
+      );
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //Map<String, dynamic> decoded = jsonDecode(resp.body);
         print(resp.body);
