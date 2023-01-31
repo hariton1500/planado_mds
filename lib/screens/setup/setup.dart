@@ -31,7 +31,7 @@ class _SetupState extends State<Setup> {
               onPressed: () {
                 widget.settings
                     .save(key)
-                    .then((value) => Navigator.of(context).pop());
+                    .then((value) => Navigator.of(context).pop(key));
               },
               icon: Icon(
                 Icons.save,
@@ -42,37 +42,42 @@ class _SetupState extends State<Setup> {
       ),
       body: Center(
         child: Column(children: [
-          const Text('Authorization key:'),
-          TextField(
-            controller: TextEditingController(text: key),
-            onChanged: (value) {
-              key = value;
-              setState(() {
-                keyHasChanged = true;
-              });
-            },
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: TextField(
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                  labelText: 'Authorization key:',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15))),
+              maxLines: 3,
+              minLines: 2,
+              controller: TextEditingController(text: key),
+              onChanged: (value) {
+                key = value;
+              },
+            ),
           ),
-          keyHasChanged
-              ? TextButton.icon(
-                  onPressed: () {
+          TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  keyHasChanged = false;
+                });
+                widget.settings.checkKey(key).then((ok) {
+                  if (ok) {
                     setState(() {
-                      keyHasChanged = false;
+                      isCheckOk = true;
                     });
-                    widget.settings.checkKey(key).then((ok) {
-                      if (ok) {
-                        setState(() {
-                          isCheckOk = true;
-                        });
-                      } else {
-                        setState(() {
-                          isCheckOk = false;
-                        });
-                      }
+                  } else {
+                    setState(() {
+                      isCheckOk = false;
                     });
-                  },
-                  icon: const Icon(Icons.check),
-                  label: const Text('Check it'))
-              : Container()
+                  }
+                });
+              },
+              icon: const Icon(Icons.check),
+              label: const Text('Check?'))
         ]),
       ),
     );
