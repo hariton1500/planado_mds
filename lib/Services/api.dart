@@ -98,12 +98,6 @@ class PlanadoAPI {
     print('getting free jobs; key=$authKey');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
-      String month = (DateTime.now().month < 10)
-          ? '0${DateTime.now().month}'
-          : DateTime.now().month.toString();
-      String day = (DateTime.now().day < 10)
-          ? '0${DateTime.now().day}'
-          : DateTime.now().day.toString();
       String url =
           'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
       //url = 'https://api.planadoapp.com/v2/jobs?external_order_id=R-00362473';
@@ -188,9 +182,15 @@ class PlanadoAPI {
     print('assignee job = $job to assignees $assignees');
     try {
       //var list = targetIds.map((e) => {'uuid': e}).toList();
+      String month = (DateTime.now().month < 10)
+          ? '0${DateTime.now().month}'
+          : DateTime.now().month.toString();
+      String day = (DateTime.now().day < 10)
+          ? '0${DateTime.now().day}'
+          : DateTime.now().day.toString();
       job['assignee'] = assignees.first;
       job['assignees'] = assignees;
-      String data = jsonEncode({'assignee': {'worker': assignees.first}, 'assignees': assignees});
+      String data = jsonEncode({'assignee': {'worker': assignees.first}, 'scheduled_at': "${DateTime.now().year}-$month-${day}T11:00:00.000Z"});
       //{'assignee': {'worker': {'uuid':targetIds.first}}, 
       //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]
       print(data);

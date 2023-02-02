@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.planado_mds">
+   <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="planado_mds"
+        android:label="Planado MDS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
