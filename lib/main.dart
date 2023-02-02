@@ -46,6 +46,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String tab = '';
   String authKey = '';
+  var payload;
 
   @override
   void initState() {
@@ -87,6 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 setState(() {
                   tab = 'map';
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          MapWidget(authKey: authKey, payload: payload ?? '')));
                 });
               },
               icon: const Icon(Icons.map),
@@ -104,10 +108,18 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Setup(
-                          settings: Settings(),
-                        )));
+                Navigator.of(context)
+                    .push(MaterialPageRoute(
+                        builder: (context) => Setup(
+                              settings: Settings(),
+                            )))
+                    .then((value) {
+                  if (value != null && value != '') {
+                    setState(() {
+                      authKey = value;
+                    });
+                  }
+                });
               },
               icon: const Icon(Icons.settings))
         ],
@@ -118,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             if (tab == 'users') ...[UsersWidget(authKey: authKey)],
             if (tab == 'teams') ...[const TeamsWidget()],
-            if (tab == 'map') ...[const MapWidget()],
+            if (tab == 'map') ...[],
             if (tab == 'jobs') ...[JobsWidget(authKey: authKey)],
             if (tab == '') ...[
               RefreshIndicator(

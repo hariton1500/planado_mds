@@ -33,22 +33,9 @@ class _UsersWidgetState extends State<UsersWidget> {
             shrinkWrap: true,
             itemBuilder: (context, index) => Padding(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 30),
-                  /*
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.blue)),
-                    child: Text(users['users'][index]['first_name'] +
-                        ' ' +
-                        users['users'][index]['last_name']),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => UserScreen(
-                              user: users['users'][index], api: api)));
-                    },
-                  ),*/
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 30),
                   child: ListTile(
+                    dense: true,
                     shape: const RoundedRectangleBorder(
                         side: BorderSide(color: Colors.black),
                         borderRadius: BorderRadius.all(Radius.circular(5))),
