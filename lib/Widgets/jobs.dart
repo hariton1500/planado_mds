@@ -6,8 +6,9 @@ import 'package:planado_mds/Services/api.dart';
 import 'package:planado_mds/Screens/job.dart';
 
 class JobsWidget extends StatefulWidget {
-  const JobsWidget({Key? key, required this.authKey}) : super(key: key);
+  const JobsWidget({Key? key, required this.authKey, required this.loadedJobs}) : super(key: key);
   final String authKey;
+  final Map<String, dynamic> loadedJobs;
 
   @override
   State<JobsWidget> createState() => _JobsWidgetState();
@@ -21,15 +22,19 @@ class _JobsWidgetState extends State<JobsWidget> {
 
   @override
   void initState() {
-    loadJobs();
+    jobs = widget.loadedJobs;
+    if (widget.loadedJobs.isEmpty) loadJobs();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     if (jobs.isNotEmpty) {
-      return Expanded(
-        child: ListView.builder(
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Non assigned jobs'),
+        ),
+        body: ListView.builder(
             shrinkWrap: true,
             itemCount: (jobs['jobs'] as List).length,
             itemBuilder: (context, index) => Padding(
@@ -57,7 +62,14 @@ class _JobsWidgetState extends State<JobsWidget> {
                                 api.assigneeJob(
                                     job: jobs['jobs'][index],
                                     assignees: value
-                                );
+                                ).then((answer) {
+                                  print(answer);
+                                  if (answer.startsWith('{"job_uuid":"')) {
+                                    setState(() {
+                                      (jobs['jobs'] as List).removeAt(index);
+                                    });
+                                  }
+                                });
                               }
                             });
                             break;

@@ -5,9 +5,10 @@ import 'package:planado_mds/Screens/userscreen.dart';
 import 'package:planado_mds/Services/api.dart';
 
 class UsersWidget extends StatefulWidget {
-  const UsersWidget({Key? key, required this.authKey}) : super(key: key);
+  const UsersWidget({Key? key, required this.authKey, required this.loadedUsers}) : super(key: key);
 
   final String authKey;
+  final Map<String, dynamic> loadedUsers;
 
   @override
   State<UsersWidget> createState() => _UsersWidgetState();
@@ -18,7 +19,10 @@ class _UsersWidgetState extends State<UsersWidget> {
 
   @override
   void initState() {
-    loadUsers();
+    setState(() {
+      users = widget.loadedUsers;
+    });
+    if (widget.loadedUsers.isEmpty) loadUsers();
     super.initState();
   }
 
@@ -27,8 +31,11 @@ class _UsersWidgetState extends State<UsersWidget> {
   @override
   Widget build(BuildContext context) {
     if (users.containsKey('users')) {
-      return Expanded(
-        child: ListView.builder(
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Workers'),
+        ),
+        body: ListView.builder(
             itemCount: (users['users'] as List).length,
             shrinkWrap: true,
             itemBuilder: (context, index) => Padding(

@@ -4,7 +4,11 @@ import 'package:http/http.dart' as http;
 
 class PlanadoAPI {
   String key = '';
-  PlanadoAPI();
+  PlanadoAPI({String? auth}) {
+    if (auth != null && auth != '') {
+      key = auth;
+    }
+  }
 
   Future<String> getUsers() async {
     print('getting users; key = $key');
