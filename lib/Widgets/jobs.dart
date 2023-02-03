@@ -33,6 +33,11 @@ class _JobsWidgetState extends State<JobsWidget> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Non assigned jobs'),
+          actions: [
+            IconButton(onPressed: () {
+              loadJobs();
+            }, icon: const Icon(Icons.refresh))
+          ],
         ),
         body: ListView.builder(
             shrinkWrap: true,
