@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:planado_mds/Models/settings.dart';
 import 'package:planado_mds/Services/api.dart';
+import 'package:planado_mds/Services/settings.dart';
 import 'package:planado_mds/Widgets/jobs.dart';
 import 'package:planado_mds/Widgets/map.dart';
 import 'package:planado_mds/Widgets/teams.dart';
 import 'package:planado_mds/Widgets/users.dart';
 import 'package:planado_mds/Screens/setup/setup.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,10 +45,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  PlanadoAPI api = PlanadoAPI();
+  Settings settings = Settings();
   String tab = '';
   String authKey = '';
-  var payload;
   Map<String, dynamic> users = {}, jobs = {};
+  bool usersLoaded = false, jobsLoaded = false;
 
   @override
   void initState() {
@@ -74,9 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(
-                        builder: (context) => Setup(
-                              settings: Settings(),
-                            )))
+                        builder: (context) =>
+                            Setup(settings: settings, api: api)))
                     .then((value) {
                   if (value != null && value != '') {
                     setState(() {
@@ -98,9 +98,16 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UsersWidget(authKey: authKey, loadedUsers: users,)));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => UsersWidget(
+                              authKey: authKey,
+                              loadedUsers: users,
+                            )));
                   },
-                  icon: const Icon(Icons.person),
+                  icon: Icon(
+                    Icons.person,
+                    color: usersLoaded ? Colors.white : Colors.green,
+                  ),
                   label: const Text('users')),
             ),
           ),
@@ -111,7 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TeamsWidget()));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const TeamsWidget()));
                   },
                   icon: const Icon(Icons.people),
                   label: const Text('teams')),
@@ -124,9 +132,14 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => JobsWidget(authKey: authKey, loadedJobs: jobs,)));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => JobsWidget(
+                              authKey: authKey,
+                              loadedJobs: jobs,
+                            )));
                   },
-                  icon: const Icon(Icons.work),
+                  icon: Icon(Icons.work,
+                      color: usersLoaded ? Colors.white : Colors.green),
                   label: const Text('jobs')),
             ),
           ),
@@ -141,12 +154,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       tab = 'map';
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
-                              MapWidget(authKey: authKey, payload: payload ?? '')));
+                              MapWidget(authKey: authKey, payload: '')));
                     });
                   },
                   icon: const Icon(Icons.map),
-                  label: const Text('map')
-              ),
+                  label: const Text('map')),
             ),
           ),
         ],
@@ -155,29 +167,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('authKey')) {
+    Settings settings = Settings();
+    authKey = await settings.load();
+    api.key = authKey;
+    if (authKey == '') {
       // ignore: use_build_context_synchronously
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => Setup(
-                settings: Settings(),
-              )));
-    } else {
-      authKey = prefs.getString('authKey') ?? '';
-      //print(authKey);
-      Timer(const Duration(milliseconds: 500), () {
-        setState(() {
-          tab = 'users';
-        });
-      });
+          builder: (context) => Setup(settings: settings, api: api)));
     }
   }
-  
-  void loadData() async{
+
+  void loadData() async {
     print('waiting for 1 second');
     await Future.delayed(const Duration(seconds: 1));
     print('authKey now is $authKey');
-    PlanadoAPI api = PlanadoAPI(auth: authKey);
+    //PlanadoAPI api = PlanadoAPI(auth: authKey);
     api.getUsers().then((value) {
       try {
         users = jsonDecode(value);
@@ -185,13 +189,21 @@ class _MyHomePageState extends State<MyHomePage> {
         (users['users'] as List).removeWhere(
             (element) => !element['permissions']['mobile']['jobs']['complete']);
         //==========================================
-     } catch (e) {
+        print('loaded ${(users['users'] as List).length} users');
+        setState(() {
+          usersLoaded = true;
+        });
+      } catch (e) {
         print(e);
       }
     });
     api.getFreeJobs(authKey).then((value) {
       try {
         jobs = jsonDecode(value);
+        print('loaded ${jobs.length} free jobs');
+        setState(() {
+          jobsLoaded = true;
+        });
       } catch (e) {
         print(e);
       }

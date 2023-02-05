@@ -194,14 +194,17 @@ class PlanadoAPI {
           : DateTime.now().day.toString();
       job['assignee'] = assignees.first;
       job['assignees'] = assignees;
-      String data = jsonEncode({'assignee': {'worker': assignees.first}, 'scheduled_at': "${DateTime.now().year}-$month-${day}T11:00:00.000Z"});
-      //{'assignee': {'worker': {'uuid':targetIds.first}}, 
+      String data = jsonEncode({
+        'assignee': {'worker': assignees.first},
+        'scheduled_at': "${DateTime.now().year}-$month-${day}T11:00:00.000Z"
+      });
+      //{'assignee': {'worker': {'uuid':targetIds.first}},
       //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]
       print(data);
       var resp = await http.patch(
-          Uri.parse('https://api.planadoapp.com/v2/jobs/${job['uuid']}'),
-          headers: {'Authorization': 'Bearer $key'},
-          body: data,
+        Uri.parse('https://api.planadoapp.com/v2/jobs/${job['uuid']}'),
+        headers: {'Authorization': 'Bearer $key'},
+        body: data,
       );
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //Map<String, dynamic> decoded = jsonDecode(resp.body);

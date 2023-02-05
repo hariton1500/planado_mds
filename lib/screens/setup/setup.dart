@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:planado_mds/Models/settings.dart';
+import 'package:planado_mds/Services/api.dart';
+import 'package:planado_mds/Services/settings.dart';
 
 class Setup extends StatefulWidget {
-  const Setup({Key? key, required this.settings}) : super(key: key);
+  const Setup({Key? key, required this.settings, required this.api})
+      : super(key: key);
   final Settings settings;
+  final PlanadoAPI api;
 
   @override
   State<Setup> createState() => _SetupState();
@@ -11,16 +14,7 @@ class Setup extends StatefulWidget {
 
 class _SetupState extends State<Setup> {
   bool keyHasChanged = true;
-  String key = '';
   bool isCheckOk = false;
-
-  @override
-  void initState() {
-    widget.settings.load().then((value) => setState(() {
-          key = value;
-        }));
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +24,8 @@ class _SetupState extends State<Setup> {
           TextButton.icon(
               onPressed: () {
                 widget.settings
-                    .save(key)
-                    .then((value) => Navigator.of(context).pop(key));
+                    .save(widget.api.key)
+                    .then((value) => Navigator.of(context).pop());
               },
               icon: Icon(
                 Icons.save,
@@ -53,9 +47,9 @@ class _SetupState extends State<Setup> {
                       borderRadius: BorderRadius.circular(15))),
               maxLines: 3,
               minLines: 2,
-              controller: TextEditingController(text: key),
+              controller: TextEditingController(text: widget.api.key),
               onChanged: (value) {
-                key = value;
+                widget.api.key = value;
               },
             ),
           ),
@@ -64,8 +58,8 @@ class _SetupState extends State<Setup> {
                 setState(() {
                   keyHasChanged = false;
                 });
-                widget.settings.checkKey(key).then((ok) {
-                  if (ok) {
+                widget.api.getUsers().then((ok) {
+                  if (ok.startsWith('')) {
                     setState(() {
                       isCheckOk = true;
                     });
