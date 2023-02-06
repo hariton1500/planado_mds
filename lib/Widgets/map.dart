@@ -5,11 +5,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:planado_mds/Helpers/epsg3395.dart';
 import 'package:planado_mds/Helpers/map.dart';
+import 'package:planado_mds/Services/api.dart';
 
 class MapWidget extends StatefulWidget {
-  const MapWidget({Key? key, required this.authKey, required this.payload})
+  const MapWidget({Key? key, required this.api, required this.payload})
       : super(key: key);
-  final String authKey;
+  final PlanadoAPI api;
   final String payload;
   @override
   State<MapWidget> createState() => _MapWidgetState();
@@ -19,11 +20,11 @@ class _MapWidgetState extends State<MapWidget> {
   LatLng centerMap = LatLng(45.200834, 33.351089);
   MapSource mapSource = MapSource.openstreet;
   final MapController _mapController = MapController();
-  var data; // = widget.payload;
+  var data;
 
   @override
   void initState() {
-    //data = jsonDecode(widget.payload);
+    data = jsonDecode(widget.payload);
     super.initState();
   }
 

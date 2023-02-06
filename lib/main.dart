@@ -6,7 +6,6 @@ import 'package:planado_mds/Services/api.dart';
 import 'package:planado_mds/Services/settings.dart';
 import 'package:planado_mds/Widgets/jobs.dart';
 import 'package:planado_mds/Widgets/map.dart';
-import 'package:planado_mds/Widgets/teams.dart';
 import 'package:planado_mds/Widgets/users.dart';
 import 'package:planado_mds/Screens/setup/setup.dart';
 
@@ -48,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   PlanadoAPI api = PlanadoAPI();
   Settings settings = Settings();
   String tab = '';
-  String authKey = '';
+  //String authKey = '';
   Map<String, dynamic> users = {}, jobs = {};
   bool usersLoaded = false, jobsLoaded = false;
 
@@ -80,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     .then((value) {
                   if (value != null && value != '') {
                     setState(() {
-                      authKey = value;
+                      //api.key = value;
                     });
                   }
                 });
@@ -100,17 +99,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => UsersWidget(
-                              authKey: authKey,
+                              api: api,
                               loadedUsers: users,
                             )));
                   },
                   icon: Icon(
                     Icons.person,
-                    color: usersLoaded ? Colors.white : Colors.green,
+                    color: !usersLoaded ? Colors.white : Colors.green,
                   ),
                   label: const Text('users')),
             ),
           ),
+          /*
           SizedBox(
             width: double.infinity,
             height: MediaQuery.of(context).size.height / 5,
@@ -125,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   label: const Text('teams')),
             ),
           ),
+          */
           SizedBox(
             width: double.infinity,
             height: MediaQuery.of(context).size.height / 5,
@@ -134,12 +135,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => JobsWidget(
-                              authKey: authKey,
+                              api: api,
                               loadedJobs: jobs,
                             )));
                   },
                   icon: Icon(Icons.work,
-                      color: usersLoaded ? Colors.white : Colors.green),
+                      color: !usersLoaded ? Colors.white : Colors.green),
                   label: const Text('jobs')),
             ),
           ),
@@ -153,8 +154,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     setState(() {
                       tab = 'map';
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              MapWidget(authKey: authKey, payload: '')));
+                          builder: (context) => MapWidget(
+                              api: api,
+                              payload:
+                                  jsonEncode({'jobs': jobs, 'users': users}))));
                     });
                   },
                   icon: const Icon(Icons.map),
@@ -168,9 +171,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loadPrefs() async {
     Settings settings = Settings();
-    authKey = await settings.load();
-    api.key = authKey;
-    if (authKey == '') {
+    api.key = await settings.load();
+    //api.key = authKey;
+    if (api.key == '') {
       // ignore: use_build_context_synchronously
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => Setup(settings: settings, api: api)));
@@ -180,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void loadData() async {
     print('waiting for 1 second');
     await Future.delayed(const Duration(seconds: 1));
-    print('authKey now is $authKey');
+    print('authKey now is ${api.key}');
     //PlanadoAPI api = PlanadoAPI(auth: authKey);
     api.getUsers().then((value) {
       try {
@@ -197,10 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
         print(e);
       }
     });
-    api.getFreeJobs(authKey).then((value) {
+    api.getFreeJobs().then((value) {
       try {
         jobs = jsonDecode(value);
-        print('loaded ${jobs.length} free jobs');
+        print('loaded ${(jobs['jobs'] as List).length} free jobs');
         setState(() {
           jobsLoaded = true;
         });

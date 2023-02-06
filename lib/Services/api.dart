@@ -65,8 +65,8 @@ class PlanadoAPI {
     }
   }
 
-  Future<String> getUserJobs(String userId) async {
-    print('getting users jobs; key = $userId');
+  Future<String> getUserJobs(String userId, Function(int, int) callback) async {
+    print('getting users jobs; user_id = $userId; key = $key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
       String month = (DateTime.now().month < 10)
@@ -82,10 +82,13 @@ class PlanadoAPI {
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //return resp.body;
         Map<String, dynamic> decoded = jsonDecode(resp.body);
+        callback(0, (decoded['jobs'] as List).length);
         for (var job in decoded['jobs']) {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
+            callback((jobs['jobs'] as List).length,
+                (decoded['jobs'] as List).length);
           }
         }
         return jsonEncode(jobs);
@@ -97,16 +100,16 @@ class PlanadoAPI {
     return '';
   }
 
-  Future<String> getFreeJobs(String authKey) async {
-    key = authKey;
-    print('getting free jobs; key=$authKey');
+  Future<String> getFreeJobs() async {
+    //key = authKey;
+    print('getting free jobs; key=$key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
       String url =
           'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
       //url = 'https://api.planadoapp.com/v2/jobs?external_order_id=R-00362473';
       var resp = await http
-          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $authKey'});
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //return resp.body;
         Map<String, dynamic> decoded = jsonDecode(resp.body);
@@ -132,7 +135,7 @@ class PlanadoAPI {
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        print(resp.body);
+        //print(resp.body);
         return resp.body;
       } else {
         print(resp.body);

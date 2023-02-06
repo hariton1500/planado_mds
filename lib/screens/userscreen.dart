@@ -26,6 +26,28 @@ class _UserScreenState extends State<UserScreen> {
   Map<String, dynamic> jobs = {};
   Map<String, int> jobsCounter = {};
   bool showComments = false;
+  int done = 0, all = 0;
+  //Function? back;
+
+  void loadJobs() {
+    widget.api.getUserJobs(widget.user['uuid'], ((p0, p1) {
+      print('$p0, $p1');
+      setState(() {
+        done = p0;
+        all = p1;
+      });
+    })).then((value) async {
+      if (value != '') {
+        Map<String, dynamic> decoded = {};
+        decoded = jsonDecode(value);
+        setState(() {
+          jobs = decoded;
+        });
+      } else {
+        print('nothig');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,21 +103,13 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                 );
               })
-          : const Center(child: CircularProgressIndicator()),
+          : Center(
+              child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: LinearProgressIndicator(
+                value: done / (all == 0 ? 1 : all),
+              ),
+            )),
     );
-  }
-
-  void loadJobs() {
-    widget.api.getUserJobs(widget.user['uuid']).then((value) async {
-      if (value != '') {
-        Map<String, dynamic> decoded = {};
-        decoded = jsonDecode(value);
-        setState(() {
-          jobs = decoded;
-        });
-      } else {
-        print('nothig');
-      }
-    });
   }
 }

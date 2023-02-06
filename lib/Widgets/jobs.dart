@@ -6,8 +6,9 @@ import 'package:planado_mds/Services/api.dart';
 import 'package:planado_mds/Screens/job.dart';
 
 class JobsWidget extends StatefulWidget {
-  const JobsWidget({Key? key, required this.authKey, required this.loadedJobs}) : super(key: key);
-  final String authKey;
+  const JobsWidget({Key? key, required this.api, required this.loadedJobs})
+      : super(key: key);
+  final PlanadoAPI api;
   final Map<String, dynamic> loadedJobs;
 
   @override
@@ -15,13 +16,15 @@ class JobsWidget extends StatefulWidget {
 }
 
 class _JobsWidgetState extends State<JobsWidget> {
-  PlanadoAPI api = PlanadoAPI();
+  //PlanadoAPI api = PlanadoAPI();
 
   Map<String, dynamic> jobs = {};
   bool showComments = true;
 
   @override
   void initState() {
+    print(
+        'init of jobs. passed ${(widget.loadedJobs['jobs'] as List).length} jobs.');
     jobs = widget.loadedJobs;
     if (widget.loadedJobs.isEmpty) loadJobs();
     super.initState();
@@ -34,9 +37,11 @@ class _JobsWidgetState extends State<JobsWidget> {
         appBar: AppBar(
           title: const Text('Non assigned jobs'),
           actions: [
-            IconButton(onPressed: () {
-              loadJobs();
-            }, icon: const Icon(Icons.refresh))
+            IconButton(
+                onPressed: () {
+                  loadJobs();
+                },
+                icon: const Icon(Icons.refresh))
           ],
         ),
         body: ListView.builder(
@@ -58,16 +63,18 @@ class _JobsWidgetState extends State<JobsWidget> {
                         switch (value) {
                           case 0:
                             Navigator.of(context)
-                                .push<List<Map<String, dynamic>>>(MaterialPageRoute(
-                                    builder: (context) =>
-                                        TargetScreen(api: api)))
+                                .push<List<Map<String, dynamic>>>(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            TargetScreen(api: widget.api)))
                                 .then((value) {
                               if (value != null) {
                                 print(value);
-                                api.assigneeJob(
-                                    job: jobs['jobs'][index],
-                                    assignees: value
-                                ).then((answer) {
+                                widget.api
+                                    .assigneeJob(
+                                        job: jobs['jobs'][index],
+                                        assignees: value)
+                                    .then((answer) {
                                   print(answer);
                                   if (answer.startsWith('{"job_uuid":"')) {
                                     setState(() {
@@ -79,7 +86,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                             });
                             break;
                           case 1:
-                            api
+                            widget.api
                                 .deleteJob(jobs['jobs'][index]['uuid'])
                                 .then((value) {
                               if (value == '{"message":"Performed"}') {
@@ -123,7 +130,7 @@ class _JobsWidgetState extends State<JobsWidget> {
   }
 
   void loadJobs() {
-    api.getFreeJobs(widget.authKey).then((value) async {
+    widget.api.getFreeJobs().then((value) async {
       if (value != '') {
         Map<String, dynamic> decoded = {};
         decoded = jsonDecode(value);

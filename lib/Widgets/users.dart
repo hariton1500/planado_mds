@@ -5,9 +5,10 @@ import 'package:planado_mds/Screens/userscreen.dart';
 import 'package:planado_mds/Services/api.dart';
 
 class UsersWidget extends StatefulWidget {
-  const UsersWidget({Key? key, required this.authKey, required this.loadedUsers}) : super(key: key);
+  const UsersWidget({Key? key, required this.api, required this.loadedUsers})
+      : super(key: key);
 
-  final String authKey;
+  final PlanadoAPI api;
   final Map<String, dynamic> loadedUsers;
 
   @override
@@ -15,7 +16,7 @@ class UsersWidget extends StatefulWidget {
 }
 
 class _UsersWidgetState extends State<UsersWidget> {
-  PlanadoAPI api = PlanadoAPI();
+  //PlanadoAPI api = PlanadoAPI();
 
   @override
   void initState() {
@@ -49,7 +50,7 @@ class _UsersWidgetState extends State<UsersWidget> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => UserScreen(
-                              user: users['users'][index], api: api)));
+                              user: users['users'][index], api: widget.api)));
                     },
                     title: Text(users['users'][index]['first_name'] +
                         ' ' +
@@ -66,8 +67,8 @@ class _UsersWidgetState extends State<UsersWidget> {
   }
 
   void loadUsers() {
-    api.key = widget.authKey;
-    api.getUsers().then((value) {
+    //api.key = widget.authKey;
+    widget.api.getUsers().then((value) {
       //print(value);
       Map<String, dynamic> decoded = {};
       if (value != '') decoded = jsonDecode(value);
