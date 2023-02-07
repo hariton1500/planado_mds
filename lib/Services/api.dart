@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -11,31 +12,31 @@ class PlanadoAPI {
   }
 
   Future<String> getUsers() async {
-    print('getting users; key = $key');
+    log('getting users; key = $key');
     try {
       var resp = await http.get(
           Uri.parse('https://api.planadoapp.com/v2/users'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //print(resp.body);
+        //log(resp.body);
         return resp.body;
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
   }
 
   Future<String> getUsersAndTeamsForChoose() async {
-    print('getting users and teams for choose; key = $key');
+    log('getting users and teams for choose; key = $key');
     Map<String, dynamic> answer = {'users': [], 'teams': []};
     try {
       var resp = await http.get(
           Uri.parse('https://api.planadoapp.com/v2/users'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //print(resp.body);
+        //log(resp.body);
         var decoded = jsonDecode(resp.body);
         /*
         for (var element in decoded['users']) {
@@ -49,7 +50,7 @@ class PlanadoAPI {
       resp = await http.get(Uri.parse('https://api.planadoapp.com/v2/teams'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //print(resp.body);
+        //log(resp.body);
         var decoded = jsonDecode(resp.body);
         answer['teams'] = decoded['teams'];
         /*
@@ -60,13 +61,13 @@ class PlanadoAPI {
       }
       return jsonEncode(answer);
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
   }
 
   Future<String> getUserJobs(String userId, Function(int, int) callback) async {
-    print('getting users jobs; user_id = $userId; key = $key');
+    log('getting users jobs; user_id = $userId; key = $key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
       String month = (DateTime.now().month < 10)
@@ -94,7 +95,7 @@ class PlanadoAPI {
         return jsonEncode(jobs);
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
@@ -102,7 +103,7 @@ class PlanadoAPI {
 
   Future<String> getFreeJobs() async {
     //key = authKey;
-    print('getting free jobs; key=$key');
+    log('getting free jobs; key=$key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
       String url =
@@ -122,52 +123,52 @@ class PlanadoAPI {
         return jsonEncode(jobs);
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
   }
 
   Future<String> getJob(String id) async {
-    print('getting job; id = $id');
+    log('getting job; id = $id');
     try {
       String url = 'https://api.planadoapp.com/v2/jobs/$id';
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //print(resp.body);
+        //log(resp.body);
         return resp.body;
       } else {
-        print(resp.body);
+        log(resp.body);
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
   }
 
   Future<String> getJobType(String typeId) async {
-    print('getting job type; typeId = $typeId');
+    log('getting job type; typeId = $typeId');
     try {
       var resp = await http.get(
           Uri.parse('https://api.planadoapp.com/v2/job_types'),
           headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         Map<String, dynamic> decoded = jsonDecode(resp.body);
-        //print(decoded['job_types']);
+        //log(decoded['job_types']);
         return (decoded['job_types'] as List)
             .firstWhere((element) => element['uuid'] == typeId)['code'];
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
   }
 
   Future<String> deleteJob(String jobId) async {
-    print('delete job ID = $jobId');
+    log('delete job ID = $jobId');
     try {
       var resp = await http.delete(
           Uri.parse('https://api.planadoapp.com/v2/jobs/$jobId'),
@@ -177,7 +178,7 @@ class PlanadoAPI {
         return resp.body;
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';
@@ -186,7 +187,7 @@ class PlanadoAPI {
   Future<String> assigneeJob(
       {required Map<String, dynamic> job,
       required List<Map<String, dynamic>> assignees}) async {
-    print('assignee job = $job to assignees $assignees');
+    log('assignee job = $job to assignees $assignees');
     try {
       //var list = targetIds.map((e) => {'uuid': e}).toList();
       String month = (DateTime.now().month < 10)
@@ -203,7 +204,7 @@ class PlanadoAPI {
       });
       //{'assignee': {'worker': {'uuid':targetIds.first}},
       //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]
-      print(data);
+      log(data);
       var resp = await http.patch(
         Uri.parse('https://api.planadoapp.com/v2/jobs/${job['uuid']}'),
         headers: {'Authorization': 'Bearer $key'},
@@ -211,13 +212,13 @@ class PlanadoAPI {
       );
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //Map<String, dynamic> decoded = jsonDecode(resp.body);
-        print(resp.body);
+        log(resp.body);
         return resp.body;
       } else {
-        print(resp.body);
+        log(resp.body);
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
       return '';
     }
     return '';

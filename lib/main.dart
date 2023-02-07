@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Services/api.dart';
@@ -181,9 +182,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void loadData() async {
-    print('waiting for 1 second');
+    log('waiting for 1 second');
     await Future.delayed(const Duration(seconds: 1));
-    print('authKey now is ${api.key}');
+    log('authKey now is ${api.key}');
     //PlanadoAPI api = PlanadoAPI(auth: authKey);
     api.getUsers().then((value) {
       try {
@@ -192,23 +193,23 @@ class _MyHomePageState extends State<MyHomePage> {
         (users['users'] as List).removeWhere(
             (element) => !element['permissions']['mobile']['jobs']['complete']);
         //==========================================
-        print('loaded ${(users['users'] as List).length} users');
+        log('loaded ${(users['users'] as List).length} users');
         setState(() {
           usersLoaded = true;
         });
       } catch (e) {
-        print(e);
+        log(e.toString());
       }
     });
     api.getFreeJobs().then((value) {
       try {
         jobs = jsonDecode(value);
-        print('loaded ${(jobs['jobs'] as List).length} free jobs');
+        log('loaded ${(jobs['jobs'] as List).length} free jobs');
         setState(() {
           jobsLoaded = true;
         });
       } catch (e) {
-        print(e);
+        log(e.toString());
       }
     });
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Screens/target.dart';
@@ -23,7 +24,7 @@ class _JobsWidgetState extends State<JobsWidget> {
 
   @override
   void initState() {
-    print(
+    log(
         'init of jobs. passed ${(widget.loadedJobs['jobs'] as List).length} jobs.');
     jobs = widget.loadedJobs;
     if (widget.loadedJobs.isEmpty) loadJobs();
@@ -69,13 +70,13 @@ class _JobsWidgetState extends State<JobsWidget> {
                                             TargetScreen(api: widget.api)))
                                 .then((value) {
                               if (value != null) {
-                                print(value);
+                                log(value.toString());
                                 widget.api
                                     .assigneeJob(
                                         job: jobs['jobs'][index],
                                         assignees: value)
                                     .then((answer) {
-                                  print(answer);
+                                  log(answer);
                                   if (answer.startsWith('{"job_uuid":"')) {
                                     setState(() {
                                       (jobs['jobs'] as List).removeAt(index);
@@ -138,7 +139,7 @@ class _JobsWidgetState extends State<JobsWidget> {
           jobs = decoded;
         });
       } else {
-        print('nothig');
+        log('nothig');
       }
     });
   }
