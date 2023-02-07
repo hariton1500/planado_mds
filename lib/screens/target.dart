@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Services/api.dart';
@@ -28,7 +29,7 @@ class _TargetScreenState extends State<TargetScreen> {
         appBar: AppBar(actions: [
           TextButton.icon(
               onPressed: () {
-                //print(selectedUuids);
+                //log(selectedUuids);
                 Navigator.of(context).pop(selected);
               },
               icon: const Icon(Icons.select_all),
@@ -45,7 +46,7 @@ class _TargetScreenState extends State<TargetScreen> {
                         value: workerOrteam,
                         groupValue: targetType,
                         onChanged: (value) {
-                          print(value);
+                          log(value.toString());
                           setState(() {
                             targetType = value!;
                             selected.clear();
@@ -60,7 +61,7 @@ class _TargetScreenState extends State<TargetScreen> {
                       title: Text((e['name'] ?? '${e['first_name']} ${e['last_name']}').toString()),
                       value: selected.contains(e),
                       onChanged: (isChecked) {
-                        print(isChecked);
+                        log(isChecked.toString());
                         setState(() {
                           if (isChecked ?? false) {
                             selected.add(e);
@@ -80,7 +81,7 @@ class _TargetScreenState extends State<TargetScreen> {
     widget.api.getUsersAndTeamsForChoose().then((value) {
       var decoded = jsonDecode(value);
       setState(() {
-        print(value);
+        log(value);
         targets['worker'] = decoded['users'];
         targets['team'] = decoded['teams'];
       });

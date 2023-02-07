@@ -20,7 +20,7 @@ class _MapWidgetState extends State<MapWidget> {
   LatLng centerMap = LatLng(45.200834, 33.351089);
   MapSource mapSource = MapSource.openstreet;
   final MapController _mapController = MapController();
-  var data;
+  var data = {};
 
   @override
   void initState() {

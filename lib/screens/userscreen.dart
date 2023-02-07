@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Helpers/color.dart';
@@ -31,7 +32,7 @@ class _UserScreenState extends State<UserScreen> {
 
   void loadJobs() {
     widget.api.getUserJobs(widget.user['uuid'], ((p0, p1) {
-      print('$p0, $p1');
+      log('$p0, $p1');
       setState(() {
         done = p0;
         all = p1;
@@ -44,14 +45,14 @@ class _UserScreenState extends State<UserScreen> {
           jobs = decoded;
         });
       } else {
-        print('nothig');
+        log('nothig');
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    //print(jobs);
+    //log(jobs);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.user['first_name'] + ' ' + widget.user['last_name']),
