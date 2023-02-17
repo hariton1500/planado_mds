@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PlanadoAPI {
@@ -186,21 +187,22 @@ class PlanadoAPI {
 
   Future<String> assigneeJob(
       {required Map<String, dynamic> job,
-      required List<Map<String, dynamic>> assignees}) async {
+      required List<Map<String, dynamic>> assignees, DateTime? toDate, TimeOfDay? toTime}) async {
     log('assignee job = $job to assignees $assignees');
+    log('to Date: $toDate, to Time: $toTime');
     try {
       //var list = targetIds.map((e) => {'uuid': e}).toList();
-      String month = (DateTime.now().month < 10)
-          ? '0${DateTime.now().month}'
-          : DateTime.now().month.toString();
-      String day = (DateTime.now().day < 10)
-          ? '0${DateTime.now().day}'
-          : DateTime.now().day.toString();
+      String month = ((toDate ?? DateTime.now()).month < 10)
+          ? '0${(toDate ?? DateTime.now()).month}'
+          : (toDate ?? DateTime.now()).month.toString();
+      String day = ((toDate ?? DateTime.now()).day < 10)
+          ? '0${(toDate ?? DateTime.now()).day}'
+          : (toDate ?? DateTime.now()).day.toString();
       job['assignee'] = assignees.first;
       job['assignees'] = assignees;
       String data = jsonEncode({
         'assignee': {'worker': assignees.first},
-        'scheduled_at': "${DateTime.now().year}-$month-${day}T11:00:00.000Z"
+        'scheduled_at': "${(toDate ?? DateTime.now()).year}-$month-${day}T${toDate?.hour ?? 11}:${toDate?.minute ?? 00}:00.000Z"
       });
       //{'assignee': {'worker': {'uuid':targetIds.first}},
       //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]

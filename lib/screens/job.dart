@@ -33,7 +33,7 @@ class _JobScreenState extends State<JobScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.job['resolution']?['name'] ?? ''),
-              Text(widget.job['description']),
+              Text(widget.job['description'] ?? ''),
               //Text(widget.job.toString()),
             ],
           ),

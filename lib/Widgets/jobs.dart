@@ -21,6 +21,7 @@ class _JobsWidgetState extends State<JobsWidget> {
 
   Map<String, dynamic> jobs = {};
   bool showComments = true;
+  bool isRefreshing = false;
 
   @override
   void initState() {
@@ -38,8 +39,12 @@ class _JobsWidgetState extends State<JobsWidget> {
         appBar: AppBar(
           title: const Text('Non assigned jobs'),
           actions: [
+            isRefreshing ? const RefreshProgressIndicator() :
             IconButton(
                 onPressed: () {
+                  setState(() {
+                    isRefreshing = true;
+                  });
                   loadJobs();
                 },
                 icon: const Icon(Icons.refresh))
@@ -64,7 +69,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                         switch (value) {
                           case 0:
                             Navigator.of(context)
-                                .push<List<Map<String, dynamic>>>(
+                                .push<List>(
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             TargetScreen(api: widget.api)))
@@ -74,7 +79,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                                 widget.api
                                     .assigneeJob(
                                         job: jobs['jobs'][index],
-                                        assignees: value)
+                                        assignees: value[0], toDate: value[1], toTime: value[2])
                                     .then((answer) {
                                   log(answer);
                                   if (answer.startsWith('{"job_uuid":"')) {
@@ -116,9 +121,9 @@ class _JobsWidgetState extends State<JobsWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment']}'),
+                            '${jobs['jobs'][index]['address']['formatted']}, k. ${jobs['jobs'][index]['address']['apartment'] ?? ''}'),
                         showComments
-                            ? Text(jobs['jobs'][index]['description'])
+                            ? Text(jobs['jobs'][index]['description'] ?? '')
                             : Container()
                       ],
                     ),
@@ -137,6 +142,7 @@ class _JobsWidgetState extends State<JobsWidget> {
         decoded = jsonDecode(value);
         setState(() {
           jobs = decoded;
+          isRefreshing = false;
         });
       } else {
         log('nothig');

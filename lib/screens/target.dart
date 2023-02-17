@@ -30,7 +30,30 @@ class _TargetScreenState extends State<TargetScreen> {
           TextButton.icon(
               onPressed: () {
                 //log(selectedUuids);
-                Navigator.of(context).pop(selected);
+                DateTime toDate;
+                TimeOfDay toTime;
+                showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 7))).then((value) {
+                  if (value != null) {
+                    toDate = value;
+                    showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                      builder: (BuildContext context, Widget? child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                          child: child!,
+                        );
+                      }
+                    ).then((value) {
+                      if (value != null) {
+                        toTime = value;
+                        toDate = toDate.add(Duration(hours: toTime.hour - 3, minutes: toTime.minute)); // -3 hours to correct LocalTimeZone????
+                        Navigator.of(context).pop([selected, toDate, toTime]);
+                      }
+                    });
+                  }
+                });
+                
               },
               icon: const Icon(Icons.select_all),
               label: const Text('Assign to'))
@@ -64,6 +87,7 @@ class _TargetScreenState extends State<TargetScreen> {
                         log(isChecked.toString());
                         setState(() {
                           if (isChecked ?? false) {
+                            selected.clear(); //rem for multiple selection
                             selected.add(e);
                           } else {
                             selected.remove(e);
