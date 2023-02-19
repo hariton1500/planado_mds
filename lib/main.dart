@@ -49,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Settings settings = Settings();
   String tab = '';
   //String authKey = '';
-  Map<String, dynamic> users = {}, jobs = {};
-  bool usersLoaded = false, jobsLoaded = false;
+  Map<String, dynamic> users = {}, jobs = {}, jobsToday = {};
+  bool usersLoaded = false, jobsLoaded = false, jobsTodayLoaded = false;
 
   @override
   void initState() {
@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           builder: (context) => MapWidget(
                               api: api,
                               payload:
-                                  jsonEncode({'jobs': jobs, 'users': users}))));
+                                  {'jobs': jobsToday, 'users': users})));
                     });
                   },
                   icon: const Icon(Icons.map),
@@ -207,6 +207,17 @@ class _MyHomePageState extends State<MyHomePage> {
         log('loaded ${(jobs['jobs'] as List).length} free jobs');
         setState(() {
           jobsLoaded = true;
+        });
+      } catch (e) {
+        log(e.toString());
+      }
+    });
+    api.getTodayJobs().then((value) {
+      try {
+        jobsToday = jsonDecode(value);
+        log('loaded ${(jobs['jobs'] as List).length} free jobs');
+        setState(() {
+          jobsTodayLoaded = true;
         });
       } catch (e) {
         log(e.toString());

@@ -50,7 +50,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                 icon: const Icon(Icons.refresh))
           ],
         ),
-        body: ListView.builder(
+        body: (jobs['jobs'] as List).isNotEmpty ? ListView.builder(
             shrinkWrap: true,
             itemCount: (jobs['jobs'] as List).length,
             itemBuilder: (context, index) => Padding(
@@ -128,7 +128,7 @@ class _JobsWidgetState extends State<JobsWidget> {
                       ],
                     ),
                   ),
-                )),
+                )) : const Center(child: Text('Nothing...'),),
       );
     } else {
       return const Expanded(child: Center(child: CircularProgressIndicator()));

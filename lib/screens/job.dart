@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Helpers/color.dart';
 
@@ -13,6 +15,7 @@ class JobScreen extends StatefulWidget {
 class _JobScreenState extends State<JobScreen> {
   @override
   Widget build(BuildContext context) {
+    print(widget.job);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.job['template']['name']),
@@ -25,6 +28,12 @@ class _JobScreenState extends State<JobScreen> {
           shape: const RoundedRectangleBorder(
               side: BorderSide(color: Colors.black),
               borderRadius: BorderRadius.all(Radius.circular(5))),
+          leading: Column(
+            children: [
+              Text(DateTime.parse(widget.job['scheduled_at']).toLocal().toString()),
+              Text('${((widget.job['scheduled_duration']['minutes'] / 60) as double).toStringAsFixed(1).toString()} hours')
+            ],
+          ),
           title: Text(widget.job['address']['formatted'] +
               ', k. ' +
               widget.job['address']?['apartment'].toString()),
@@ -34,6 +43,7 @@ class _JobScreenState extends State<JobScreen> {
             children: [
               Text(widget.job['resolution']?['name'] ?? ''),
               Text(widget.job['description'] ?? ''),
+              (widget.job['contacts'] as List).isNotEmpty ? Text(widget.job['contacts'][0]['value']) : Container(),
               //Text(widget.job.toString()),
             ],
           ),

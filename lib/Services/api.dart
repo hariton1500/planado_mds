@@ -168,6 +168,42 @@ class PlanadoAPI {
     return '';
   }
 
+  Future<String> getTodayJobs({Function(int, int)? callback}) async {
+    log('getting jobs for scheduled for today; key = $key');
+    Map<String, dynamic> jobs = {'jobs': []};
+    try {
+      String month = (DateTime.now().month < 10)
+          ? '0${DateTime.now().month}'
+          : DateTime.now().month.toString();
+      String day = (DateTime.now().day < 10)
+          ? '0${DateTime.now().day}'
+          : DateTime.now().day.toString();
+      String url =
+          'https://api.planadoapp.com/v2/jobs?scheduled_at[after]=${DateTime.now().year}-$month-${day}T00:00:00Z&scheduled_at[before]=${DateTime.now().year}-$month-${day}T23:59:59Z';
+      var resp = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
+      if (resp.statusCode >= 200 && resp.statusCode <= 299) {
+        //return resp.body;
+        Map<String, dynamic> decoded = jsonDecode(resp.body);
+        //callback(0, (decoded['jobs'] as List).length);
+        for (var job in decoded['jobs']) {
+          var respJob = await getJob(job['uuid']);
+          if (respJob != '') {
+            (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
+            //callback((jobs['jobs'] as List).length, (decoded['jobs'] as List).length);
+          }
+        }
+        return jsonEncode(jobs);
+      }
+    } catch (e) {
+      log(e.toString());
+      return '';
+    }
+    return '';
+  }
+
+
+
   Future<String> deleteJob(String jobId) async {
     log('delete job ID = $jobId');
     try {
