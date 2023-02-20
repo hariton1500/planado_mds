@@ -51,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //String authKey = '';
   Map<String, dynamic> users = {}, jobs = {}, jobsToday = {};
   bool usersLoaded = false, jobsLoaded = false, jobsTodayLoaded = false;
+  double mapJobsProgress = 0;
 
   @override
   void initState() {
@@ -162,7 +163,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   },
                   icon: const Icon(Icons.map),
-                  label: const Text('map')),
+                  label: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('map'),
+                      LinearProgressIndicator(value: mapJobsProgress,)
+                    ],
+                  )),
             ),
           ),
         ],
@@ -212,7 +219,12 @@ class _MyHomePageState extends State<MyHomePage> {
         log(e.toString());
       }
     });
-    api.getTodayJobs().then((value) {
+    api.getTodayJobs(callback:((i, j){
+      print([i, j]);
+      setState(() {
+        mapJobsProgress = i / j;
+      });
+    })).then((value) {
       try {
         jobsToday = jsonDecode(value);
         log('loaded ${(jobs['jobs'] as List).length} free jobs');

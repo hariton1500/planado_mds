@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:planado_mds/Helpers/functions.dart';
 
 class PlanadoAPI {
   String key = '';
@@ -172,12 +173,8 @@ class PlanadoAPI {
     log('getting jobs for scheduled for today; key = $key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
-      String month = (DateTime.now().month < 10)
-          ? '0${DateTime.now().month}'
-          : DateTime.now().month.toString();
-      String day = (DateTime.now().day < 10)
-          ? '0${DateTime.now().day}'
-          : DateTime.now().day.toString();
+      String month = get0befor(DateTime.now().month);
+      String day = get0befor(DateTime.now().day);
       String url =
           'https://api.planadoapp.com/v2/jobs?scheduled_at[after]=${DateTime.now().year}-$month-${day}T00:00:00Z&scheduled_at[before]=${DateTime.now().year}-$month-${day}T23:59:59Z';
       var resp = await http
@@ -190,7 +187,7 @@ class PlanadoAPI {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
-            //callback((jobs['jobs'] as List).length, (decoded['jobs'] as List).length);
+            if (callback != null) callback((jobs['jobs'] as List).length, (decoded['jobs'] as List).length);
           }
         }
         return jsonEncode(jobs);

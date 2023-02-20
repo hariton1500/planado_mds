@@ -55,7 +55,7 @@ class _MapWidgetState extends State<MapWidget> {
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          zoom: 15,
+          zoom: 16,
           maxZoom: 18,
           crs: mapSource == MapSource.yandexsat
               ? const Epsg3395()
@@ -69,11 +69,11 @@ class _MapWidgetState extends State<MapWidget> {
               bool isGeoPresent = job['address']['geolocation'] != null;
               //print(job['address']['geolocation'].runtimeType);
               return Marker(
-                width: 100,
+                width: 110,
                 point: LatLng(isGeoPresent ? job['address']['geolocation']['latitude'] : 0, isGeoPresent ? job['address']['geolocation']['longitude'] : 0),
                 builder: (context) {
                   return Card(
-                    child: Text(getJobPeriod(job['scheduled_at'].toString(), 0)),
+                    child: Text(getJobPeriod(job['scheduled_at'].toString(), job['scheduled_duration']['minutes'])),
                   );
                 }
               );}).toList()
