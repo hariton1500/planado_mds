@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:planado_mds/Helpers/color.dart';
 import 'package:planado_mds/Helpers/epsg3395.dart';
 import 'package:planado_mds/Helpers/functions.dart';
 import 'package:planado_mds/Helpers/map.dart';
@@ -65,19 +66,39 @@ class _MapWidgetState extends State<MapWidget> {
         layers: [
           layerMap(mapSource),
           MarkerLayerOptions(
-            markers: (widget.payload['jobs']?['jobs'] as List).map((job) {
-              bool isGeoPresent = job['address']['geolocation'] != null;
-              //print(job['address']['geolocation'].runtimeType);
-              return Marker(
-                width: 110,
-                point: LatLng(isGeoPresent ? job['address']['geolocation']['latitude'] : 0, isGeoPresent ? job['address']['geolocation']['longitude'] : 0),
+              markers: (widget.payload['jobs']?['jobs'] as List).map((job) {
+            bool isGeoPresent = job['address']['geolocation'] != null;
+            //print(job['address']['geolocation'].runtimeType);
+            return Marker(
+                width: 80,
+                height: 40,
+                point: LatLng(
+                    isGeoPresent
+                        ? job['address']['geolocation']['latitude']
+                        : 0,
+                    isGeoPresent
+                        ? job['address']['geolocation']['longitude']
+                        : 0),
                 builder: (context) {
-                  return Card(
-                    child: Text(getJobPeriod(job['scheduled_at'].toString(), job['scheduled_duration']['minutes'])),
+                  String name = (widget.payload['users']?['users'] as List)
+                      .firstWhere((element) =>
+                          element['uuid'] ==
+                          job['assignees'][0]['uuid'])['last_name'];
+                  return Container(
+                    color: colorOfJob(job['status'],
+                            job['resolution']?['successful'] ?? false)
+                        .withOpacity(0.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(getJobPeriod(job['scheduled_at'].toString(),
+                            job['scheduled_duration']['minutes'])),
+                        Text(name)
+                      ],
+                    ),
                   );
-                }
-              );}).toList()
-          )
+                });
+          }).toList())
         ],
       ),
     );
