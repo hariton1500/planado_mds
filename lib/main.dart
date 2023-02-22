@@ -162,14 +162,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   {'jobs': jobsToday, 'users': users})));
                     });
                   },
-                  icon: const Icon(Icons.map),
-                  label: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('map'),
-                      LinearProgressIndicator(value: mapJobsProgress,)
-                    ],
-                  )),
+                  icon: mapJobsProgress != 1.0 ? CircularProgressIndicator(value: mapJobsProgress, color: Colors.green, strokeWidth: 2,) : const Icon(Icons.map, color: Colors.green,),
+                  label: const Text('map')),
             ),
           ),
         ],
