@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:planado_mds/Helpers/color.dart';
 import 'package:planado_mds/Screens/job.dart';
+import 'package:planado_mds/Screens/target.dart';
 import 'package:planado_mds/Services/api.dart';
 
 class UserScreen extends StatefulWidget {
@@ -31,11 +32,12 @@ class _UserScreenState extends State<UserScreen> {
   //Function? back;
 
   void loadJobs() {
-    widget.api.getUserJobs(widget.user['uuid'], ((p0, p1) {
+    widget.api.getUserJobs(widget.user['uuid'], ((p0, p1, j) {
       log('$p0, $p1');
       setState(() {
         done = p0;
         all = p1;
+        jobs = j;
       });
     })).then((value) async {
       if (value != '') {
@@ -67,6 +69,11 @@ class _UserScreenState extends State<UserScreen> {
               label: const Text('Comments'))
         ],
       ),
+      bottomSheet: done != all
+          ? LinearProgressIndicator(
+              value: done / (all == 0 ? 1 : all),
+            )
+          : null,
       body: jobs.isNotEmpty
           ? ListView.builder(
               shrinkWrap: true,
@@ -101,15 +108,66 @@ class _UserScreenState extends State<UserScreen> {
                             : Container()
                       ],
                     ),
+                    trailing: PopupMenuButton<int>(
+                      onSelected: (value) {
+                        switch (value) {
+                          case 0:
+                            Navigator.of(context)
+                                .push<List>(MaterialPageRoute(
+                                    builder: (context) =>
+                                        TargetScreen(api: widget.api)))
+                                .then((value) {
+                              if (value != null) {
+                                log(value.toString());
+                                widget.api
+                                    .assigneeJob(
+                                        job: jobs['jobs'][index],
+                                        assignees: value[0],
+                                        toDate: value[1],
+                                        toTime: value[2])
+                                    .then((answer) {
+                                  log(answer);
+                                  if (answer.startsWith('{"job_uuid":"')) {
+                                    setState(() {
+                                      (jobs['jobs'] as List).removeAt(index);
+                                    });
+                                  }
+                                });
+                              }
+                            });
+                            break;
+                          case 1:
+                            widget.api
+                                .deleteJob(jobs['jobs'][index]['uuid'])
+                                .then((value) {
+                              if (value == '{"message":"Performed"}') {
+                                setState(() {
+                                  (jobs['jobs'] as List).removeAt(index);
+                                });
+                              }
+                            });
+                            break;
+                          default:
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem<int>(
+                          value: 0,
+                          child: Text('Assign to'),
+                        ),
+                        const PopupMenuItem<int>(
+                          value: 1,
+                          child: Text('Delete'),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               })
           : Center(
               child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: LinearProgressIndicator(
-                value: done / (all == 0 ? 1 : all),
-              ),
+              child: Container(),
             )),
     );
   }

@@ -40,14 +40,9 @@ class PlanadoAPI {
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //log(resp.body);
         var decoded = jsonDecode(resp.body);
-        /*
-        for (var element in decoded['users']) {
-          (answer['users'] as List).add({
-            'uuid': element['uuid'],
-            'name': '${element['first_name']} ${element['last_name']}'
-          });
-        }*/
         answer['users'] = decoded['users'];
+        (answer['users'] as List).removeWhere(
+            (user) => !user['permissions']['mobile']['jobs']['complete']);
       }
       resp = await http.get(Uri.parse('https://api.planadoapp.com/v2/teams'),
           headers: {'Authorization': 'Bearer $key'});
@@ -55,11 +50,6 @@ class PlanadoAPI {
         //log(resp.body);
         var decoded = jsonDecode(resp.body);
         answer['teams'] = decoded['teams'];
-        /*
-        for (var element in decoded['teams']) {
-          (answer['teams'] as List)
-              .add({'uuid': element['uuid'], 'name': element['name']});
-        }*/
       }
       return jsonEncode(answer);
     } catch (e) {
@@ -68,7 +58,8 @@ class PlanadoAPI {
     }
   }
 
-  Future<String> getUserJobs(String userId, Function(int, int) callback) async {
+  Future<String> getUserJobs(
+      String userId, Function(int, int, Map<String, dynamic>) callback) async {
     log('getting users jobs; user_id = $userId; key = $key');
     Map<String, dynamic> jobs = {'jobs': []};
     try {
@@ -85,13 +76,13 @@ class PlanadoAPI {
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
         //return resp.body;
         Map<String, dynamic> decoded = jsonDecode(resp.body);
-        callback(0, (decoded['jobs'] as List).length);
+        callback(0, (decoded['jobs'] as List).length, jobs);
         for (var job in decoded['jobs']) {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
             callback((jobs['jobs'] as List).length,
-                (decoded['jobs'] as List).length);
+                (decoded['jobs'] as List).length, jobs);
           }
         }
         return jsonEncode(jobs);
@@ -187,7 +178,9 @@ class PlanadoAPI {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
-            if (callback != null) callback((jobs['jobs'] as List).length, (decoded['jobs'] as List).length);
+            if (callback != null)
+              callback((jobs['jobs'] as List).length,
+                  (decoded['jobs'] as List).length);
           }
         }
         return jsonEncode(jobs);
@@ -198,8 +191,6 @@ class PlanadoAPI {
     }
     return '';
   }
-
-
 
   Future<String> deleteJob(String jobId) async {
     log('delete job ID = $jobId');
@@ -220,7 +211,9 @@ class PlanadoAPI {
 
   Future<String> assigneeJob(
       {required Map<String, dynamic> job,
-      required List<Map<String, dynamic>> assignees, DateTime? toDate, TimeOfDay? toTime}) async {
+      required List<Map<String, dynamic>> assignees,
+      DateTime? toDate,
+      TimeOfDay? toTime}) async {
     log('assignee job = $job to assignees $assignees');
     log('to Date: $toDate, to Time: $toTime');
     try {
@@ -235,7 +228,8 @@ class PlanadoAPI {
       job['assignees'] = assignees;
       String data = jsonEncode({
         'assignee': {'worker': assignees.first},
-        'scheduled_at': "${(toDate ?? DateTime.now()).year}-$month-${day}T${toDate?.hour ?? 11}:${toDate?.minute ?? 00}:00.000Z"
+        'scheduled_at':
+            "${(toDate ?? DateTime.now()).year}-$month-${day}T${get0befor(toDate?.hour ?? 11)}:${get0befor(toDate?.minute ?? 00)}:00.000Z"
       });
       //{'assignee': {'worker': {'uuid':targetIds.first}},
       //[{'worker': {'uuid': targetIds.first}}, {'worker': {'uuid': targetIds.last}}]
