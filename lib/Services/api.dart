@@ -100,14 +100,25 @@ class PlanadoAPI {
     Map<String, dynamic> jobs = {'jobs': []};
     try {
       String url =
-          'https://api.planadoapp.com/v2/jobs?status[]=posted&status[]=scheduled';
+          'https://api.planadoapp.com/v2/jobs';
       //url = 'https://api.planadoapp.com/v2/jobs?external_order_id=R-00362473';
       var resp = await http
           .get(Uri.parse(url), headers: {'Authorization': 'Bearer $key'});
       if (resp.statusCode >= 200 && resp.statusCode <= 299) {
-        //return resp.body;
+        //log(resp.body);
         Map<String, dynamic> decoded = jsonDecode(resp.body);
-        for (var job in decoded['jobs']) {
+        for (var j in (decoded['jobs'] as List)) {
+          print('1: $j');
+        }
+        //log(decoded['jobs'].toString());
+        List filtered = [];
+        filtered.addAll((decoded['jobs'] as List).where((element) => element['scheduled_at'] == null));
+        print(filtered.length);
+        filtered.addAll((decoded['jobs'] as List).where((element) => element['status'] == 'posted'));
+        print(filtered.length);
+        filtered.toSet().toList();
+        print(filtered.length);
+        for (var job in filtered) {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
@@ -178,9 +189,10 @@ class PlanadoAPI {
           var respJob = await getJob(job['uuid']);
           if (respJob != '') {
             (jobs['jobs'] as List).add(jsonDecode(respJob)['job']);
-            if (callback != null)
+            if (callback != null) {
               callback((jobs['jobs'] as List).length,
                   (decoded['jobs'] as List).length);
+            }
           }
         }
         return jsonEncode(jobs);
